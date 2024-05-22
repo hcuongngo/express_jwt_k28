@@ -1,10 +1,11 @@
 const express = require('express')
+const rootRoute = require('./routes')
+
 const app = express()
 const PORT = 3000
 
-app.get("/", (req, res) => {
-  res.send("Hello ExpressJS")
-})
+app.use(express.json())
+app.use("/api/v1", rootRoute)
 
 app.listen(PORT, () => {
   console.log(`Running in ${PORT}`)

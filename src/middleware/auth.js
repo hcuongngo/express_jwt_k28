@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+const { handleResponseError } = require("../utils/response.js")
 
 let sampleRefreshTokens = []
 
@@ -25,7 +26,7 @@ const generateRefreshToken = (email, password, role) => {
       role
     },
     SECRET_KEY_REFRESH_TOKEN,
-    { expiresIn: '10d'}
+    { expiresIn: '10d' }
   )
 }
 
@@ -54,26 +55,17 @@ const checkAccessToken = (req, res, next) => {
 const checkRefreshToken = (req, res, next) => {
   const authorizationHeader = req.headers['authorization']
   if (!authorizationHeader || !authorizationHeader.startsWith("Bearer ")) {
-    res.writeHead(401, {
-      "Content-Type": "text/plain"
-    })
-    res.end("Invalid refresh token")
+    handleResponseError(res, 401, "Invalid refresh token")
     return
   }
   const refreshToken = authorizationHeader.split(" ")[1]
   if (!refreshToken || !sampleRefreshTokens.includes(refreshToken)) {
-    res.writeHead(401, {
-      "Content-Type": "text/plain"
-    })
-    res.end("Invalid refresh token")
+    handleResponseError(res, 401, "Invalid refresh token")
     return
   }
   jwt.verify(refreshToken, SECRET_KEY_REFRESH_TOKEN, (err, decoded) => {
     if (err) {
-      res.writeHead(401, {
-        "Content-Type": "text/plain"
-      })
-      res.end("Invalid refresh token")
+      handleResponseError(res, 401, "Invalid refresh token")
       return
     }
     next()
@@ -96,6 +88,7 @@ const checkAuthorizationAdmin = (req, res, next) => {
 }
 
 module.exports = {
+  SECRET_KEY_REFRESH_TOKEN,
   sampleRefreshTokens,
   generateAccessToken,
   generateRefreshToken,
